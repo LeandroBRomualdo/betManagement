@@ -2,6 +2,7 @@ const placeBetRequestDto = require('../schemas/Dtos/placeBetRequest.dto')
 const walletRepository = require('../repositories/wallet.repository')
 const betRepository = require('../repositories/bet.repository')
 const bet = require('../schemas/schema.bet')
+const winnerRepository = require('../repositories/winner.repository')
 
 async function placeABet(req, res) {
     const request = req.body
@@ -42,6 +43,12 @@ async function placeABet(req, res) {
 
 function getUserResult(req, res){
 
+    const data = winnerRepository.getByBetIdAndUserId(req.params)
+    data.then(response => {
+        res.status(200).json(response)
+    }).catch(err => {
+        res.status(500).json('Erro ao obter ganhador.')
+    })
 }
 
 module.exports = {
