@@ -22,18 +22,8 @@ async function connect(){
     });
   }
   
-  function sendToQueue(queue, message){
-    connect()
-      .then(channel => createQueue(channel, queue))
-      .then(channel => channel.sendToQueue(queue, Buffer.from(JSON.stringify(message))))
-      .catch(err => console.log(err))
-  }
-  
-  function consume(queue, callback){
-    connect()
-      .then(channel => createQueue(channel, queue))
-      .then(channel => channel.consume(queue, callback, { noAck: true }))
-      .catch(err => console.log(err));
+  async function publishInExchange(channel, exchange, routingKey, message){
+    return channel.publish(exchange, routingKey, Buffer.from(message));
   }
 
   async function consumeFromExchange(channel, exchangeName, routeKey, callback){
@@ -48,8 +38,7 @@ async function connect(){
   }
   
   module.exports = {
-    sendToQueue,
-    consume,
     consumeFromExchange,
     connect,
+    publishInExchange
   }

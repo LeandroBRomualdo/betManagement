@@ -5,7 +5,7 @@ const walletRepository = require('../repositories/wallet.repository')
 const winnerRepository = require('../repositories/winner.repository')
 
 const env = require('dotenv').config()
-const { QUEUE_NAME } = process.env
+const { QUEUE_NAME, EXCHANGE_NOTIFICATIONS_NAME } = process.env
 
 const GethundredAnimal = (hundred) => {
   for (const animal in AnimalGroups) {
@@ -97,10 +97,10 @@ async function GetPrizeDrawnMessage(){
           .catch(err => console.log(err.message))
       });
   }).catch(err =>{
-      res.status(500).json(`Erro ao inserir user bet: ${err.message}`)
+      console.log(`Erro ao inserir user bet: ${err.message}`)
   })
 
-  rabbit.sendToQueue('winners', winnersNotification)
+  rabbit.publishInExchange(channel,EXCHANGE_NOTIFICATIONS_NAME, '', JSON.stringify(winnersNotification))
     .then(n => console.log("Notificação enviada"))
   })
   

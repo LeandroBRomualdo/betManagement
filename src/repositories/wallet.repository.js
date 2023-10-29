@@ -1,9 +1,9 @@
 const axios = require('axios');
-const env = require('dotenv').config()
 
-const {WALLET_API_URL} = process.env
+const { WALLET_API_URL } = process.env
 
 const getBalance = async (userId) => {
+	console.log(process.env)
 	const { data } = await axios.get(`${WALLET_API_URL}/carteiras/${userId}/saldo`)
 	return data
 }

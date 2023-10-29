@@ -30,6 +30,8 @@ async function placeABet(req, res) {
             }
             const wallet = walletRepository.SetBalance(request.userId, walletRequest)
                 .then(item => console.log("Alterado valor de saldo."))
+
+            res.status(200).json("ok")
         }).catch(err =>{
             res.status(500).json(`Erro ao inserir user bet: ${err.message}`)
         })
