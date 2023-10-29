@@ -1,11 +1,11 @@
-const rabbit = require('./rabbit.service')
+const rabbit = require('../services/rabbitMq')
 const betRepository = require('../repositories/bet.repository')
 const AnimalGroups = require('../data/animalGroups')
 const walletRepository = require('../repositories/wallet.repository')
 const winnerRepository = require('../repositories/winner.repository')
 
 const env = require('dotenv').config()
-const {QUEUE_NAME: PRIZE_DRAWN_QUEUE} = process.env
+const { QUEUE_NAME } = process.env
 
 const GethundredAnimal = (hundred) => {
   for (const animal in AnimalGroups) {
@@ -15,13 +15,18 @@ const GethundredAnimal = (hundred) => {
   }
 }
 
-function GetPrizeDrawnMessage(){
-  rabbit.consumeFromQueue(PRIZE_DRAWN_QUEUE, message =>{
+async function GetPrizeDrawnMessage(){
+  const {channel} = await rabbit.connect()
+
+  rabbit.consumeFromExchange(channel, QUEUE_NAME, '', function (message){
+    console.log(message)
     const messageData = JSON.parse(message.content)
+    console.log(messageData)
     const { id } = messageData
     const { hundredDrawn } = messageData
     const { animalDrawn } = messageData
     const { drawnAt } = messageData
+    const winnersNotification = []
 
     const result = betRepository.getPendingBets()
 
@@ -56,6 +61,8 @@ function GetPrizeDrawnMessage(){
             .catch(err => {
               console.log(err.message)
             }))
+
+            winnersNotification.push({userId: user_id, prizeAmount: winner.prize_amount})
         }
         
         else if(animal == animalDrawn){
@@ -76,11 +83,14 @@ function GetPrizeDrawnMessage(){
             prizeAmount: winner.prize_amount,
             transactionType: "credito"
           }
-  
+          
           walletRepository.SetBalance(user_id, wallet)
             .then(response => console.log("Alterado"))
             .catch( err => { console.log(err.message)})
+
+            winnersNotification.push({userId: user_id, prizeAmount: winner.prize_amount})
         }
+
         bet.verified = true
         betRepository.update(bet.id, bet)
           .then(response => console.log("Alterado"))
@@ -89,7 +99,11 @@ function GetPrizeDrawnMessage(){
   }).catch(err =>{
       res.status(500).json(`Erro ao inserir user bet: ${err.message}`)
   })
+
+  rabbit.sendToQueue('winners', winnersNotification)
+    .then(n => console.log("Notificação enviada"))
   })
+  
 }
 
 module.exports = {

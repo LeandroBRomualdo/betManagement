@@ -9,7 +9,7 @@ function getByBetIdAndUserId(request){
     const { userId } = request
     const { betId } = request
 
-    return knex(table).join('bets', 'bet_id', '=', 'bets.id').where('bets.id', betId).and('bets.userId', userId).returning(winners)
+    return knex.from(table).innerJoin('bets', 'bet_id', 'bets.id').where('bets.id', '=', betId).andWhere('bets.user_Id', userId).returning(table)
 }
 
 const betRepository = {
