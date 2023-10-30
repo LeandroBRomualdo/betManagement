@@ -40,4 +40,4 @@ ENV WALLET_API_URL = 'http://localhost:3001/api/v1'
 
 EXPOSE ${APP_PORT}
  
-CMD [ "node", "server.js" ]
+CMD [ "node", "src/server.js" ]
