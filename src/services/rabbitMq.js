@@ -3,7 +3,8 @@ const env = require('dotenv').config()
 
 async function connect(){
   try{
-    const connection = await amqp.connect("amqp://pucmg:mgpuc@92.119.129.191")
+    const { HOST_MQ } = process.env
+    const connection = await amqp.connect(HOST_MQ)
     const channel = await connection.createChannel();
                              
     return {connection, channel}

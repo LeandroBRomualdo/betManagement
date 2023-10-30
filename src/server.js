@@ -15,5 +15,5 @@ app.use(cors({
 app.use(express.json())
 app.use(router)
 
-let port = process.env.PORT || 3030
+let port = process.env.PORT || 3010
 app.listen(port)
